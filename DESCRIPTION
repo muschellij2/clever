@@ -34,12 +34,13 @@ Imports:
     expm,
     MASS,
     e1071,
+    glmgen,
     pesel,
     robustbase,
     stats,
-    utils,
-    Rcpp
+    utils
 RoxygenNote: 7.1.1
+Remotes: https://github.com/glmgen/glmgen
 URL: https://github.com/mandymejia/clever
 BugReports: https://github.com/mandymejia/clever/issues
 Suggests:
@@ -57,6 +58,3 @@ Suggests:
     gridExtra,
     testthat (>= 2.1.0),
     covr
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo
