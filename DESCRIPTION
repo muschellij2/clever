@@ -40,7 +40,7 @@ Imports:
     stats,
     utils
 RoxygenNote: 7.1.1
-Remotes: https://github.com/statsmaths/glmgen/R_pkg/glmgen
+Remotes: glmgen/glmgen/R_pkg/glmgen
 URL: https://github.com/mandymejia/clever
 BugReports: https://github.com/mandymejia/clever/issues
 Suggests:
