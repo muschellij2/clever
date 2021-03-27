@@ -23,8 +23,11 @@ rob_trend <- function(x, nDCT=4, lmrob_method="MM") {
     colnames(mat) <- c("x_int", paste0("x_dct", seq(nDCT)))
   }
   mat$y <- x
-
-  robustbase::lmrob(y~., mat, method=lmrob_method)
+  
+  with(
+    set.seed(0),
+    robustbase::lmrob(y~., mat, method=lmrob_method, setting="KS2014")
+  )
 }
 
 #' Variance stabilize a timeseries vector
@@ -54,7 +57,7 @@ var_stabilize <- function(x, nDCT=2, lmrob_method="MM", rescale=TRUE) {
   x <- as.numeric(scale(x))
   s <- as.numeric(rob_trend(log(x^2), nDCT, lmrob_method)$fitted.values)
   s <- sqrt(exp(s))
-  x <- as.numeric(scale(x/s))
+  x <- - as.numeric(scale(x/s))
   if (rescale) { x <- (x * sqrt(x_var)) + x_mean }
   x
 }
