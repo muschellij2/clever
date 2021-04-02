@@ -11,7 +11,7 @@ vignette: >
 
 ```{r}
 library(knitr)
-opts_chunk$set(autodep = TRUE, cache = TRUE)
+opts_chunk$set(autodep = TRUE, cache = FALSE)
 ```
 
 # Overview
