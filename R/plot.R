@@ -16,6 +16,7 @@
 #'  measure (each column in \code{meas})
 #' @param geom "point" (default) or "line"
 #' @param log_y Use log scale for y-axis? Default: \code{FALSE}
+#' @param ylim_min,ylim_max The range of the y-axis. 
 #' @param ... Additional arguments to ggplot: main, sub, xlab, ...
 #'
 #' @return A ggplot
@@ -25,7 +26,9 @@
 #' @keywords internal
 clever_plot <- function(
   meas, cut=NULL, flag_intersect=FALSE, 
-  colors=NULL, log_y=FALSE, geom="point", ...){
+  colors=NULL, log_y=FALSE, geom="point", 
+  ylim_min=0, ylim_max= max(meas$measure),
+  ...){
 
   # Load required packages.
   need_cow <- !requireNamespace("cowplot", quietly = TRUE)
@@ -145,8 +148,6 @@ clever_plot <- function(
   #   ifelse(log_y, min(meas$measure), 0)
   # )
 
-  ylim_min <- 0; ylim_max <- max(meas$measure) #1.05
-
   # Check if any outliers were detected.
   if(id_outs){
     any_outs <- any(flag$isOutlier)
@@ -249,6 +250,8 @@ clever_plot <- function(
       panel.spacing.y=ggplot2::unit(1.5, "lines")) +
     ggplot2::scale_x_continuous(expand=ggplot2::expansion(mult = c(.01, .01)), breaks=xticks) +
     ggplot2::scale_y_continuous(expand=ggplot2::expansion(mult = c(0, .01)))
+
+  return(plt)
 }
 
 #' Plot \code{"clever"}
@@ -265,6 +268,8 @@ plot.clever <- function(x, title=NULL, ...){
   gg_args <- list(...)
   mtype <- as.character(x$measure_info["type"])
   stopifnot(mtype %in% c("Leverage", "DVARS", "FD"))
+
+  # Measure(s)
   meas <- x$measure
   if (!is.data.frame(meas)) {
     meas <- setNames(
@@ -274,16 +279,31 @@ plot.clever <- function(x, title=NULL, ...){
   }
   if (mtype == "DVARS") { meas <- meas[,c("DPD", "ZD")] }
 
+  # Cutoff
   if (all(is.na(x$outlier_cutoff))) {
     cut <- NULL
   } else {
     cut <- x$outlier_cutoff
   }
 
-  if ("legend.position" %in% names(gg_args)) {
-    plt <- clever_plot(meas, cut, flag_intersect= mtype=="DVARS", ylab=mtype, ...)
+  # y-limits
+  if (mtype=="Leverage") {
+    ylim_min <- 0; ylim_max <- 1
   } else {
-    plt <- clever_plot(meas, cut, legend.position="none", flag_intersect= mtype=="DVARS", ylab=mtype, ...)
+    ylim_min <- min(0, min(meas)); ylim_max <- max(meas)
+  }
+
+  # Make the plot
+  if ("legend.position" %in% names(gg_args)) {
+    plt <- clever_plot(
+      meas, cut, flag_intersect=(mtype=="DVARS"), 
+      ylab=mtype, ylim_min=ylim_min, ylim_max=ylim_max, ...
+    )
+  } else {
+    plt <- clever_plot(
+      meas, cut, legend.position="none", flag_intersect=(mtype=="DVARS"), 
+      ylab=mtype, ylim_min=ylim_min, ylim_max=ylim_max, ...
+    )
   }
 
   # Add title.
